@@ -40,7 +40,7 @@ export const PositionDisplay: React.FC<PositionDisplayProps> = ({
         expiry: "N/A",
       };
     }
-    
+
     return {
       label,
       strike: position.strike,
@@ -184,8 +184,12 @@ export const PositionDisplay: React.FC<PositionDisplayProps> = ({
             Short Positions
           </h3>
           <div className="text-sm text-blue-700">
-            <div>Weekly Call: Strike {positions.weeklyCallSell?.strike || "N/A"}</div>
-            <div>Weekly Put: Strike {positions.weeklyPutSell?.strike || "N/A"}</div>
+            <div>
+              Weekly Call: Strike {positions.weeklyCallSell?.strike || "N/A"}
+            </div>
+            <div>
+              Weekly Put: Strike {positions.weeklyPutSell?.strike || "N/A"}
+            </div>
             <div className="mt-1 text-xs">
               Collecting premium from time decay
             </div>
@@ -197,8 +201,12 @@ export const PositionDisplay: React.FC<PositionDisplayProps> = ({
             Long Positions
           </h3>
           <div className="text-sm text-green-700">
-            <div>Monthly Call: Strike {positions.monthlyCallBuy?.strike || "N/A"}</div>
-            <div>Monthly Put: Strike {positions.monthlyPutBuy?.strike || "N/A"}</div>
+            <div>
+              Monthly Call: Strike {positions.monthlyCallBuy?.strike || "N/A"}
+            </div>
+            <div>
+              Monthly Put: Strike {positions.monthlyPutBuy?.strike || "N/A"}
+            </div>
             <div className="mt-1 text-xs">Protection against large moves</div>
           </div>
         </div>
