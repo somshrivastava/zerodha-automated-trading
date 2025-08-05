@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MODE = os.getenv('MODE', 'mock')
+MOCK_DATA_MODE = os.getenv('MOCK_DATA_MODE', 'static')
 DHAN_CLIENT_ID = os.getenv('DHAN_CLIENT_ID')
 DHAN_ACCESS_TOKEN = os.getenv('DHAN_ACCESS_TOKEN')
 KITE_API_KEY = os.getenv('KITE_API_KEY')

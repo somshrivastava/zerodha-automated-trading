@@ -6,11 +6,33 @@ import uuid
 
 class ZerodhaMockAPI:
     def __init__(self):
-        self.orders = []
-        self.positions = []
+        self.positions_file = os.path.join('data', 'positions.json')
+        self.orders_file = os.path.join('data', 'orders.json')
+        
+        self.orders = self._load_json(self.orders_file)
+        self.positions = self._load_json(self.positions_file)
+    
+    def _load_json(self, filepath: str) -> List:
+        """Load JSON data from file, return empty list if file doesn't exist or is invalid."""
+        try:
+            if os.path.exists(filepath):
+                with open(filepath, 'r') as f:
+                    return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            pass
+        return []
+    
+    def _save_json(self, filepath: str, data: List) -> None:
+        """Save data to JSON file."""
+        try:
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=2)
+        except IOError as e:
+            print(f"Warning: Could not save {filepath}: {e}")
     
     def place_order(self, tradingsymbol: str, transaction_type: str, quantity: int, 
-                   order_type: str = "MARKET", price: float = None, product: str = "MIS") -> Dict:
+                   order_type: str = "MARKET", price: float = None, product: str = "NRML") -> Dict:
         order_id = str(uuid.uuid4()).replace('-', '')[:16]
         
         order = {
@@ -29,7 +51,7 @@ class ZerodhaMockAPI:
             'pending_quantity': 0,
             'cancelled_quantity': 0,
             'average_price': price if price else 100.0,
-            'exchange': 'NSE',
+            'exchange': 'NFO',
             'validity': 'DAY',
             'variety': 'regular',
             'tag': None
@@ -37,6 +59,10 @@ class ZerodhaMockAPI:
         
         self.orders.append(order)
         self._update_positions(order)
+        
+        # Save both files after updating
+        self._save_json(self.orders_file, self.orders)
+        self._save_json(self.positions_file, self.positions)
         
         print(f"Mock order placed: {transaction_type} {quantity} {tradingsymbol} - Order ID: {order_id}")
         return {
@@ -50,6 +76,7 @@ class ZerodhaMockAPI:
         tradingsymbol = order['tradingsymbol']
         transaction_type = order['transaction_type']
         quantity = order['filled_quantity']
+        price = order['average_price']
         
         existing_position = None
         for position in self.positions:
@@ -58,27 +85,42 @@ class ZerodhaMockAPI:
                 break
         
         if existing_position:
+            current_qty = existing_position['quantity']
+            current_avg_price = existing_position['average_price']
+            
             if transaction_type == 'BUY':
-                existing_position['quantity'] += quantity
-            else:
-                existing_position['quantity'] -= quantity
+                new_qty = current_qty + quantity
+                if new_qty != 0:
+                    new_avg_price = ((current_qty * current_avg_price) + (quantity * price)) / new_qty
+                else:
+                    new_avg_price = price
+            else:  # SELL
+                new_qty = current_qty - quantity
+                if new_qty != 0:
+                    new_avg_price = current_avg_price  # Keep same avg price for sells
+                else:
+                    new_avg_price = price
             
-            existing_position['last_price'] = order['average_price']
-            
-            if existing_position['quantity'] == 0:
+            if new_qty == 0:
                 self.positions.remove(existing_position)
+            else:
+                existing_position['quantity'] = new_qty
+                existing_position['average_price'] = new_avg_price
+                existing_position['last_price'] = price
         else:
             if transaction_type == 'BUY':
                 position_qty = quantity
-            else:
+            else:  # SELL
                 position_qty = -quantity
             
             if position_qty != 0:
                 self.positions.append({
                     'tradingsymbol': tradingsymbol,
+                    'exchange': 'NFO',
+                    'product': 'NRML',
                     'quantity': position_qty,
-                    'average_price': order['average_price'],
-                    'last_price': order['average_price']
+                    'average_price': price,
+                    'last_price': price
                 })
     
     def get_positions(self) -> List[Dict]:

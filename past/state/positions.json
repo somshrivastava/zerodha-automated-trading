@@ -1,0 +1,10 @@
+[
+  {
+    "tradingsymbol": "NIFTY25092525000CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  }
+]

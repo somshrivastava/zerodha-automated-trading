@@ -1,0 +1,282 @@
+[
+  {
+    "tradingsymbol": "TEST456PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -25,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "TESTORDER123CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 25,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524550CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080724350PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080724350CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524350PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525650CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725550PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725550CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525600CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080724450PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080724450CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524050PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525850CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080723900PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080723900CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525450CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725350PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725350CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524150PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524400PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525800CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725400PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725400CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524450PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725200PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725200CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524000PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092525700CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725850PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725850CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092526050CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725150PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25080725150CE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": -50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  },
+  {
+    "tradingsymbol": "NIFTY25092524600PE",
+    "exchange": "NFO",
+    "product": "NRML",
+    "quantity": 50,
+    "average_price": 100.0,
+    "last_price": 100.0
+  }
+]
