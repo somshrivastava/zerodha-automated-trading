@@ -431,3 +431,8 @@ def get_positions():
     #     json.dump(formatted_positions, f)
 
     return formatted_positions
+
+def get_delta_for_tradingsymbol(tradingsymbol: str) -> float:
+    parsed = parse_kite_option_symbol(tradingsymbol)
+    time.sleep(3)
+    return get_leg_delta(parsed["expiry"], parsed["strike"], parsed["option_type"])
