@@ -15,7 +15,7 @@ The app is deployed and available at: [[YOUR_DEPLOYMENT_URL_HERE](https://your-d
 
 ## Description
 
-Zerodha Automated Trading is a project designed to automate trading strategies using the Zerodha Kite API. It enables users to execute trades, monitor positions, and manage portfolios programmatically. The project is structured with a Next.js frontend for user interaction and a Python backend for handling trading logic and API communication.
+Zerodha Automated Trading is a comprehensive platform designed to automate trading strategies using the Zerodha Kite API. With this project, users can seamlessly execute trades, monitor positions, and manage portfolios programmatically, reducing manual intervention and increasing efficiency. The application features a modern Next.js frontend for intuitive user interaction and a robust Python backend that handles all trading logic, real-time data processing, and secure API communication. This setup empowers traders and developers to build, test, and deploy algorithmic trading strategies with ease.
 
 ## Features
 
