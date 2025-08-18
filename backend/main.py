@@ -1,4 +1,3 @@
-# server/main.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime, timezone
@@ -6,10 +5,48 @@ import helper
 import mock
 import os
 import requests
+import json
+import dotenv
+dotenv.load_dotenv()
+dotenv.load_dotenv()
+from kiteconnect import KiteConnect
 
+dotenv.load_dotenv()
 app = Flask(__name__)
-CORS(app, resources={r"/positions*": {"origins": "http://localhost:3000"},
-                     r"/check_delta": {"origins": "http://localhost:3000"}})
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
+KITE_API_KEY = os.getenv("KITE_API_KEY")
+KITE_API_SECRET = os.getenv("KITE_API_SECRET")
+
+@app.route("/login")
+def kite_login():
+    try:
+        kite = helper.get_kite()
+        login_url = kite.login_url()
+        return jsonify({"login_url": login_url})
+    except Exception as e:
+        return jsonify({"error": f"Kite API key not configured or error: {e}"}), 500
+
+@app.route("/kite/callback")
+def kite_callback():
+    err = request.args.get("error")
+    if err:
+        return f"Error from Kite: {err}", 400
+    request_token = request.args.get("request_token")
+    if not request_token:
+        return "Missing request_token", 400
+    try:
+        from kiteconnect import KiteConnect
+        kite = KiteConnect(api_key=KITE_API_KEY)
+        data = kite.generate_session(request_token, api_secret=KITE_API_SECRET)
+        access_token = data["access_token"]
+        with open("kite_token.json", "w") as f:
+            json.dump({"access_token": access_token, "generated_at": datetime.now().isoformat()}, f)
+        kite.set_access_token(access_token)
+        return "Access token received and saved. You can close this tab.", 200
+    except Exception as e:
+        return f"Token exchange failed: {e}", 500
 
 @app.after_request
 def add_cors(resp):
@@ -23,6 +60,7 @@ def add_cors(resp):
 def positions():
     # Use your mock for now (or swap to helper.get_positions())
     return jsonify({ "positions": mock.mock_positions })
+    # return jsonify({"positions": helper.get_positions()})
 
 @app.post("/check_delta")
 def check_delta():

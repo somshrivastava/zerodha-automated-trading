@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "primeicons/primeicons.css";
 
 :root {
   --background: #ffffff;
@@ -22,5 +23,439 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography improvements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.text-2xl {
+  font-size: 1.75rem;
+  line-height: 1.25;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Professional table styling overrides */
+.p-datatable {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  width: 100%;
+  table-layout: auto;
+  margin: 0; /* Remove any default margins */
+}
+
+.p-datatable-wrapper {
+  overflow-x: visible !important;
+  padding: 0; /* Remove wrapper padding that might cause squishing */
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 12px;
+  font-weight: 600;
+  color: #475569;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-align: left; /* Left-align all headers */
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 16px 12px; /* Increased padding to match headers */
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+  color: #0f172a;
+  line-height: 1.4;
+  vertical-align: middle;
+  text-align: left; /* Left-align all cells */
+}
+
+/* Base button styles */
+.btn-base {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-base:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-base:active {
+  transform: translateY(0);
+}
+
+/* Specific button variants */
+.delta-btn {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.kite-login-btn {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  text-transform: none;
+  letter-spacing: 0.025em;
+}
+
+.monitor-arrow-btn {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 1.5px;
+  margin: 0 2px;
+}
+
+.monitor-arrow-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-action-btn {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+  border-radius: 5px;
+  min-width: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-action-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Input number styling improvements */
+.p-inputnumber input {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+.p-inputnumber input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.p-inputnumber input:hover {
+  border-color: #9ca3af;
+}
+
+/* Enhanced summary cards */
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.summary-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+.summary-card .p-card-content {
+  padding: 0 !important;
+}
+
+/* Status indicators with improved typography */
+.status-positive {
+  color: #059669;
+  font-weight: 500;
+}
+
+.status-negative {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.status-neutral {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Badge system with CSS custom properties */
+.position-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  background: var(--badge-bg);
+  color: var(--badge-color);
+}
+
+.position-badge.ce {
+  --badge-bg: #dbeafe;
+  --badge-color: #1e40af;
+}
+
+.position-badge.pe {
+  --badge-bg: #fef3c7;
+  --badge-color: #92400e;
+}
+
+.position-badge.buy {
+  --badge-bg: #dcfce7;
+  --badge-color: #166534;
+}
+
+.position-badge.sell {
+  --badge-bg: #fee2e2;
+  --badge-color: #991b1c;
+}
+
+/* Monospace font improvements */
+.font-mono {
+  font-family: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.025em;
+}
+
+/* Header improvements */
+header h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+/* Footer text improvements */
+footer {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Card title spacing */
+.summary-card-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.summary-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.delta-reading {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  min-width: 50px;
+}
+
+/* Hover and focus improvements */
+.p-datatable .p-datatable-tbody > tr > td:focus-within {
+  background: #f1f5f9;
+}
+
+/* Loading and empty states */
+.p-datatable .p-datatable-emptymessage {
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Pagination improvements */
+.p-paginator {
+  padding: 16px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Connection status indicator */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Enhanced monitor arrow buttons */
+.monitor-arrow-btn {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 1.5px;
+  margin: 0 2px; /* Add margin for better spacing */
+}
+
+.monitor-arrow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.monitor-arrow-btn:active {
+  transform: translateY(0);
+}
+
+/* Status action button */
+.status-action-btn {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+  border-radius: 5px;
+  min-width: 50px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-action-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-action-btn:active {
+  transform: translateY(0);
+}
+
+/* Threshold input styling */
+.threshold-input input {
+  border-radius: 6px !important;
+  border: 1.5px solid #d1d5db !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  font-family: var(--font-geist-mono), monospace !important;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+  text-align: center;
+  width: 55px;
+  font-weight: 500;
+}
+
+.threshold-input input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  outline: none !important;
+}
+
+.threshold-input input:hover {
+  border-color: #9ca3af !important;
+}
+
+/* Compact delta reading */
+.delta-reading-compact {
+  text-align: center;
+  min-width: 55px;
+  font-size: 10px;
+}
+
+/* Compact delta reading */
+.delta-reading-compact {
+  text-align: center;
+  min-width: 55px;
+  font-size: 10px;
+}
+
+.threshold-input input:hover {
+  border-color: #9ca3af !important;
+}
+
+/* Compact delta reading */
+.delta-reading-compact {
+  text-align: center;
+  min-width: 55px;
+  font-size: 10px;
+}
+
+/* Compact delta reading */
+.delta-reading-compact {
+  text-align: center;
+  min-width: 55px;
+  font-size: 10px;
 }

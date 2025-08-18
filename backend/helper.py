@@ -17,10 +17,22 @@ MONTH_MAP = {"JAN":1,"FEB":2,"MAR":3,"APR":4,"MAY":5,"JUN":6,
 RX_NUMERIC = re.compile(r'^([A-Z]+)(\d{2})(1[0-2]|0?[1-9])(3[01]|[12]\d|0?[1-9])(\d{3,})(CE|PE)$')
 RX_MONTHLY = re.compile(r'^([A-Z]+)(\d{2})([A-Z]{3})(\d{3,})(CE|PE)$')
 
-load_dotenv()
-
 kite = KiteConnect(api_key=os.getenv("KITE_API_KEY"))
 kite.set_access_token(os.getenv("KITE_ACCESS_TOKEN"))
+
+load_dotenv()
+
+def get_kite():
+    api_key = os.getenv("KITE_API_KEY")
+    kite = KiteConnect(api_key=api_key)
+    try:
+        with open("kite_token.json") as f:
+            access_token = json.load(f)["access_token"]
+        kite.set_access_token(access_token)
+    except Exception:
+        # fallback to env if file not found
+        kite.set_access_token(os.getenv("KITE_ACCESS_TOKEN"))
+    return kite
 
 api = dhanhq(client_id=os.getenv("DHAN_CLIENT_ID"), 
              access_token=os.getenv("DHAN_ACCESS_TOKEN"))
@@ -116,14 +128,13 @@ def find_nifty_option(expiry, strike, opt_type):
     return match.iloc[0]["tradingsymbol"]
 
 def place_order(tradingsymbol: str, buy_or_sell: str, is_gtt=True):
+    kite = get_kite()
     inst = f"NFO:{tradingsymbol}"
     ltp_data = kite.ltp(inst)
     ltp = ltp_data[inst]["last_price"]        
-    
     if is_gtt:
         trigger_price = ltp
         limit_price = trigger_price + (trigger_price * 0.0026) 
-
         return kite.place_gtt(
             trigger_type=kite.GTT_TYPE_SINGLE,
             tradingsymbol=tradingsymbol,
@@ -181,6 +192,7 @@ def parse_kite_option_symbol(ts):
 
 
 def get_positions():
+    kite = get_kite()
     out = []
     positions = kite.positions()
     for p in positions["net"]:
@@ -261,6 +273,7 @@ def run_entry_logic():
     place_entry_orders(symbols)
 
 def get_active_legs_from_positions(mock_positions=None):
+    kite = get_kite()
     positions = kite.positions()["net"]
     if mock_positions is not None:
         positions = mock_positions["net"]

@@ -4,11 +4,12 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
+import { Card } from "primereact/card";
 
 type ConditionType = "above" | "below" | null;
 
 type Position = {
-  tradingsymbol: string; // must be present in /positions
+  tradingsymbol: string;
   stock: string;
   option_type: "CE" | "PE";
   buy_or_sell: "BUY" | "SELL" | "NONE";
@@ -38,6 +39,7 @@ export default function Home() {
   const [lastReading, setLastReading] = useState<
     Record<string, { delta?: number; checked_at?: string; triggered?: boolean }>
   >({});
+  const [isConnected, setIsConnected] = useState(true); // Track connection status
 
   // hold setInterval timers per symbol
   const timersRef = useRef<Record<string, ReturnType<typeof setInterval>>>({});
@@ -150,47 +152,131 @@ export default function Home() {
     });
   };
 
-  const DeltaTriggerCell = (row: Position) => {
-    const activeAbove = row.conditionType === "above";
-    const activeBelow = row.conditionType === "below";
+  // Calculate summary metrics
+  const totalPnL = positions.reduce((sum, p) => sum + p.pnl, 0);
+  const activePositions = positions.filter((p) => p.pnl !== 0).length;
+  const runningMonitors = positions.filter((p) => p.isRunning).length;
 
-    const btnStyle = (active: boolean, color: string) => ({
-      backgroundColor: active ? color : "transparent",
-      border: `1px solid ${color}`,
-      color: active ? "white" : color,
-      width: "28px",
-      height: "28px",
-      padding: 0,
-    });
+  // Consolidated cell renderers
+  const BadgeCell = (value: string) => (
+    <span className={`position-badge ${value.toLowerCase()}`}>{value}</span>
+  );
+
+  const GreeksCell = (
+    value: number | undefined,
+    formatter: (val: number) => string
+  ) => {
+    if (value == null) return <span className="text-gray-400 text-sm">—</span>;
+    return <span className="font-mono text-sm">{formatter(value)}</span>;
+  };
+
+  const SummaryCard = ({
+    title,
+    value,
+    className,
+    subtitle,
+  }: {
+    title: string;
+    value: string | number;
+    className?: string;
+    subtitle?: string;
+  }) => (
+    <Card className="summary-card">
+      <div className="p-6">
+        <div className="summary-card-title">{title}</div>
+        <div className={`summary-card-value ${className || ""}`}>{value}</div>
+        {subtitle && (
+          <div className="text-xs text-gray-500 mt-2">{subtitle}</div>
+        )}
+      </div>
+    </Card>
+  );
+
+  const PnLCell = (rowData: Position) => {
+    const isPositive = rowData.pnl > 0;
+    const isNegative = rowData.pnl < 0;
 
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-        <Button
-          aria-label="Above"
-          label="↑"
-          style={btnStyle(activeAbove, "#0f766e")}
-          className="p-button-sm p-button-rounded"
-          onClick={() =>
-            updateRow(row.tradingsymbol, {
-              conditionType: activeAbove ? null : "above",
-            })
-          }
-        />
-        <Button
-          aria-label="Below"
-          label="↓"
-          style={btnStyle(activeBelow, "#b91c1c")}
-          className="p-button-sm p-button-rounded"
-          onClick={() =>
-            updateRow(row.tradingsymbol, {
-              conditionType: activeBelow ? null : "below",
-            })
-          }
-        />
+      <span
+        className={`font-mono ${
+          isPositive
+            ? "status-positive"
+            : isNegative
+            ? "status-negative"
+            : "status-neutral"
+        }`}
+      >
+        ₹
+        {Math.abs(rowData.pnl).toLocaleString("en-IN", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })}
+      </span>
+    );
+  };
+
+  const DeltaCell = (rowData: Position) => {
+    const delta = rowData.greeks?.delta;
+    const reading = lastReading[rowData.tradingsymbol];
+    const displayDelta = reading?.delta ?? delta;
+
+    return (
+      <div className="flex flex-col items-start">
+        {GreeksCell(displayDelta, (val) => val.toFixed(3))}
+        {reading?.triggered && (
+          <span className="text-xs text-orange-600 font-semibold mt-1 uppercase tracking-wide">
+            Triggered
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const DeltaTriggerCell = (rowData: Position) => {
+    const directions = [
+      {
+        type: "above" as const,
+        icon: "↑",
+        severity: "success" as const,
+      },
+      {
+        type: "below" as const,
+        icon: "↓",
+        severity: "danger" as const,
+      },
+    ];
+
+    return (
+      <div className="flex items-center justify-start space-x-2">
+        {directions.map(({ type, icon, severity }) => {
+          const isActive = rowData.conditionType === type;
+          return (
+            <Button
+              key={type}
+              size="small"
+              outlined={!isActive}
+              severity={isActive ? severity : "secondary"}
+              label={icon}
+              className="btn-base monitor-arrow-btn"
+              onClick={() =>
+                updateRow(rowData.tradingsymbol, {
+                  conditionType: isActive ? null : type,
+                })
+              }
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
+  const DeltaThresholdCell = (rowData: Position) => {
+    return (
+      <div className="flex justify-start">
         <InputNumber
-          value={row.conditionValue ?? null}
+          value={rowData.conditionValue ?? null}
           onValueChange={(e) =>
-            updateRow(row.tradingsymbol, {
+            updateRow(rowData.tradingsymbol, {
               conditionValue: e.value as number | null,
             })
           }
@@ -200,38 +286,43 @@ export default function Home() {
           mode="decimal"
           minFractionDigits={2}
           maxFractionDigits={2}
-          inputStyle={{ width: "60px", textAlign: "center" }}
-          style={{ width: "60px" }}
+          size="small"
+          className="threshold-input"
           placeholder="0.00"
         />
       </div>
     );
   };
 
-  const StatusCell = (row: Position) => {
-    const isOn = !!row.isRunning;
-    const disabled = !isOn && !canStart(row);
-    const label = isOn ? "End" : "Start";
-    const color = isOn ? "#b91c1c" : "#0f766e";
-    const reading = lastReading[row.tradingsymbol];
+  const StatusCell = (rowData: Position) => {
+    const isRunning = !!rowData.isRunning;
+    const disabled = !isRunning && !canStart(rowData);
+    const reading = lastReading[rowData.tradingsymbol];
 
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+      <div className="flex items-center justify-start space-x-2">
         <Button
-          label={label}
-          className="p-button-sm"
-          style={{
-            backgroundColor: color,
-            border: `1px solid ${color}`,
-            color: "white",
-          }}
+          size="small"
+          label={isRunning ? "Stop" : "Start"}
+          severity={isRunning ? "danger" : "success"}
+          className="btn-base status-action-btn"
           disabled={disabled}
-          onClick={() => (isOn ? stop(row) : start(row))}
+          onClick={() => (isRunning ? stop(rowData) : start(rowData))}
         />
         {reading?.delta !== undefined && (
-          <small style={{ opacity: 0.7 }}>
-            Δ {reading.delta.toFixed(2)} {reading.triggered ? "• hit" : ""}{" "}
-          </small>
+          <div className="delta-reading-compact">
+            <div className="font-mono text-xs">
+              Δ {reading.delta.toFixed(3)}
+            </div>
+            {reading.checked_at && (
+              <div className="text-[9px] text-gray-400">
+                {new Date(reading.checked_at).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
     );
@@ -239,47 +330,151 @@ export default function Home() {
 
   const tableValue = useMemo(() => positions, [positions]);
 
-  const sendText = async () => {
-    const payload = { text: "Hello from the UI!" };
-    const res = await fetch(`${API_BASE}/notify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      console.error("Notify failed:", await res.text());
-    } else {
-      console.log("Telegram notified!");
-    }
-  };
+  // Summary data configuration
+  const summaryData = [
+    {
+      title: "Total P&L",
+      value: `₹${Math.abs(totalPnL).toLocaleString("en-IN")}`,
+      className:
+        totalPnL > 0
+          ? "status-positive"
+          : totalPnL < 0
+          ? "status-negative"
+          : "status-neutral",
+      subtitle: totalPnL !== 0 ? (totalPnL > 0 ? "Profit" : "Loss") : undefined,
+    },
+    {
+      title: "Active Positions",
+      value: activePositions,
+      className: "text-gray-900",
+      subtitle: "Open contracts",
+    },
+    {
+      title: "Running Monitors",
+      value: runningMonitors,
+      className: "text-blue-600",
+      subtitle: "Active alerts",
+    },
+  ];
 
   return (
-    <main style={{ padding: "2rem" }}>
-      <DataTable value={tableValue} stripedRows>
-        {/* <Column field="tradingsymbol" header="Symbol" sortable /> */}
-        <Column field="stock" header="Stock" sortable />
-        <Column field="option_type" header="Type" sortable />
-        <Column field="buy_or_sell" header="Buy/Sell" sortable />
-        <Column field="expiry" header="Expiry" sortable />
-        <Column field="strike" header="Strike" sortable />
-        <Column
-          header="Delta"
-          body={(r: Position) =>
-            r.greeks?.delta != null ? r.greeks.delta.toFixed(2) : ""
-          }
-          sortable
-        />
-        <Column
-          header="Theta"
-          body={(r: Position) =>
-            r.greeks?.theta != null ? r.greeks.theta.toFixed(2) : ""
-          }
-          sortable
-        />
-        <Column field="pnl" header="PnL" sortable />
-        <Column header="Δ Trigger" body={DeltaTriggerCell} />
-        <Column header="Status" body={StatusCell} />
-      </DataTable>
-    </main>
+    <div className="space-y-8">
+      {/* Summary Cards with login button */}
+      <div className="flex flex-col space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Portfolio Overview
+          </h2>
+          <Button
+            label="Connect Kite"
+            icon="pi pi-link"
+            className="btn-base kite-login-btn"
+            // onClick={handleKiteLogin}
+            outlined={isConnected}
+            severity={isConnected ? "success" : "secondary"}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {summaryData.map((card, index) => (
+            <SummaryCard key={index} {...card} />
+          ))}
+        </div>
+      </div>
+
+      {/* Main Table with responsive columns */}
+      <Card className="overflow-hidden">
+        <div className="p-4">
+          <DataTable
+            value={tableValue}
+            className="w-full"
+            paginator={positions.length > 10}
+            rows={10}
+            emptyMessage="No positions found. Connect your trading account to view positions."
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+            rowsPerPageOptions={[10, 25, 50]}
+            scrollable={false}
+            responsiveLayout="scroll"
+          >
+            <Column
+              field="stock"
+              header="Stock"
+              sortable
+              className="font-semibold"
+              style={{ minWidth: "80px" }}
+            />
+            <Column
+              header="Type"
+              body={(rowData: Position) => BadgeCell(rowData.option_type)}
+              style={{ minWidth: "50px" }}
+            />
+            <Column
+              header="Side"
+              body={(rowData: Position) => BadgeCell(rowData.buy_or_sell)}
+              style={{ minWidth: "50px" }}
+            />
+            <Column
+              field="strike"
+              header="Strike"
+              sortable
+              className="font-mono"
+              style={{ minWidth: "80px" }}
+              body={(rowData: Position) =>
+                rowData.strike.toLocaleString("en-IN")
+              }
+            />
+            <Column
+              field="expiry"
+              header="Expiry"
+              sortable
+              className="text-sm"
+              style={{ minWidth: "80px" }}
+              body={(rowData: Position) => {
+                const date = new Date(rowData.expiry);
+                return date.toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                });
+              }}
+            />
+            <Column
+              header="Delta"
+              body={DeltaCell}
+              sortable
+              style={{ minWidth: "70px" }}
+            />
+            <Column
+              header="Theta"
+              body={(r: Position) =>
+                GreeksCell(r.greeks?.theta, (val) => val.toFixed(2))
+              }
+              sortable
+              style={{ minWidth: "70px" }}
+            />
+            <Column
+              header="P&L"
+              body={PnLCell}
+              sortable
+              style={{ minWidth: "90px" }}
+            />
+            <Column
+              header="Monitor"
+              body={DeltaTriggerCell}
+              style={{ minWidth: "90px" }}
+            />
+            <Column
+              header="Threshold"
+              body={DeltaThresholdCell}
+              style={{ minWidth: "90px" }}
+            />
+            <Column
+              header="Status"
+              body={StatusCell}
+              style={{ minWidth: "120px" }}
+            />
+          </DataTable>
+        </div>
+      </Card>
+    </div>
   );
 }
