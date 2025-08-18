@@ -286,7 +286,7 @@ export default function Home() {
           mode="decimal"
           minFractionDigits={2}
           maxFractionDigits={2}
-          size="small"
+          // size="small"
           className="threshold-input"
           placeholder="0.00"
         />
