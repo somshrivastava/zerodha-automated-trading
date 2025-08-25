@@ -33,7 +33,9 @@ type CheckDeltaResponse = {
   checked_at: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:2000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  "https://zerodha-automated-trading.vercel.app/";
 
 export default function Home() {
   const [positions, setPositions] = useState<Position[]>([]);
