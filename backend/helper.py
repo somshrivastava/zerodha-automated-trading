@@ -28,6 +28,7 @@ def get_kite():
     try:
         with open("kite_token.json") as f:
             access_token = json.load(f)["access_token"]
+        print(access_token)
         kite.set_access_token(access_token)
     except Exception:
         # fallback to env if file not found
@@ -43,12 +44,16 @@ def get_expiry_list() -> list[str]:
 
     expiry_list = response.get("data").get("data")
 
+    print(response)
+
     return expiry_list
 
 def get_option_chain(expiry: str) -> dict:
     response = api.option_chain(under_security_id=13, 
                                 under_exchange_segment="IDX_I", 
                                 expiry=expiry)
+
+    print(expiry, response)
 
     option_chain = response.get("data").get("data")
 
@@ -190,26 +195,25 @@ def parse_kite_option_symbol(ts):
         }
     raise ValueError(f"Unrecognized tradingsymbol: {ts}")
 
-
-def get_positions():
-    kite = get_kite()
-    out = []
-    positions = kite.positions()
-    for p in positions["net"]:
-        ts = p["tradingsymbol"]
-        parsed = parse_kite_option_symbol(ts)
-        out.append({
-            "stock": parsed["stock"],
-            "strike": parsed["strike"],
-            "expiry": parsed["expiry"],
-            "quantity": p.get("quantity"),
-            "average_price": p.get("average_price"),
-            "last_price": p.get("last_price"),
-            "value": p.get("value"),
-            "pnl": p.get("pnl"),
-            "option_type": parsed["option_type"]
-        })
-    return out
+# def get_positions():
+#     kite = get_kite()
+#     out = []
+#     positions = kite.positions()
+#     for p in positions["net"]:
+#         ts = p["tradingsymbol"]
+#         parsed = parse_kite_option_symbol(ts)
+#         out.append({
+#             "stock": parsed["stock"],
+#             "strike": parsed["strike"],
+#             "expiry": parsed["expiry"],
+#             "quantity": p.get("quantity"),
+#             "average_price": p.get("average_price"),
+#             "last_price": p.get("last_price"),
+#             "value": p.get("value"),
+#             "pnl": p.get("pnl"),
+#             "option_type": parsed["option_type"]
+#         })
+#     return out
 
 WEEKLY_DELTA = 0.5
 MONTHLY_DELTA = 0.3
@@ -390,6 +394,7 @@ def parse_option_type(symbol):
     return None
 
 def get_positions():
+    kite = get_kite()
     positions = kite.positions()["net"]
     formatted_positions = []
 

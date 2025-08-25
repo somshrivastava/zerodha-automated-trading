@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputNumber } from "primereact/inputnumber";
+import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 
@@ -39,10 +40,30 @@ export default function Home() {
   const [lastReading, setLastReading] = useState<
     Record<string, { delta?: number; checked_at?: string; triggered?: boolean }>
   >({});
-  const [isConnected, setIsConnected] = useState(true); // Track connection status
 
   // hold setInterval timers per symbol
   const timersRef = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+
+  // Telegram settings state
+  const [telegramBotToken, setTelegramBotToken] = useState<string>("");
+  const [telegramChatId, setTelegramChatId] = useState<string>("");
+
+  // Load from localStorage on client only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTelegramBotToken(localStorage.getItem("telegramBotToken") || "");
+      setTelegramChatId(localStorage.getItem("telegramChatId") || "");
+    }
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    if (telegramBotToken)
+      localStorage.setItem("telegramBotToken", telegramBotToken);
+  }, [telegramBotToken]);
+  useEffect(() => {
+    if (telegramChatId) localStorage.setItem("telegramChatId", telegramChatId);
+  }, [telegramChatId]);
 
   // Load positions
   useEffect(() => {
@@ -88,7 +109,11 @@ export default function Home() {
       const res = await fetch(`${API_BASE}/check_delta`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(row),
+        body: JSON.stringify({
+          ...row,
+          telegram_bot_token: telegramBotToken,
+          telegram_chat_id: telegramChatId,
+        }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data: CheckDeltaResponse = await res.json();
@@ -357,24 +382,126 @@ export default function Home() {
     },
   ];
 
+  const handleKiteLogin = async () => {
+    try {
+      const redirect_uri = window.location.origin;
+      const res = await fetch(
+        `${API_BASE}/login?redirect_uri=${encodeURIComponent(redirect_uri)}`
+      );
+      const data = await res.json();
+      if (data.login_url) {
+        window.location.href = data.login_url;
+      } else {
+        alert("Failed to get Kite login URL.");
+      }
+    } catch (e) {
+      alert("Error connecting to backend for Kite login.");
+    }
+  };
+
+  const handleTestTelegram = async () => {
+    if (!telegramBotToken || !telegramChatId) {
+      alert("Please enter both Telegram Bot Token and Chat ID.");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/send_telegram`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telegram_bot_token: telegramBotToken,
+          telegram_chat_id: telegramChatId,
+          message: "✅ Test message from Zerodha Automated Trading!",
+        }),
+      });
+      if (res.ok) {
+        alert("Test message sent!");
+      } else {
+        const data = await res.json();
+        alert("Failed to send test message: " + (data.error || res.statusText));
+      }
+    } catch (e) {
+      alert("Error sending test message.");
+    }
+  };
+
   return (
     <div className="space-y-8">
-      {/* Summary Cards with login button */}
-      <div className="flex flex-col space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800">
-            Portfolio Overview
-          </h2>
+      {/* Header row: Telegram inputs inline with Connect Kite */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+        <div className="flex flex-row items-end gap-4">
+          <span className="flex flex-col">
+            <label
+              htmlFor="telegram-bot-token"
+              className="text-xs font-medium mb-1 text-gray-600"
+            >
+              Telegram Bot Token
+            </label>
+            <InputText
+              id="telegram-bot-token"
+              value={telegramBotToken}
+              onChange={(e) => setTelegramBotToken(e.target.value)}
+              placeholder="Enter bot token"
+              className="w-full md:w-64"
+              style={{ fontSize: 14 }}
+            />
+          </span>
+          <span className="flex flex-col">
+            <label
+              htmlFor="telegram-chat-id"
+              className="text-xs font-medium mb-1 text-gray-600"
+            >
+              Chat ID
+            </label>
+            <InputText
+              id="telegram-chat-id"
+              value={telegramChatId}
+              onChange={(e) => setTelegramChatId(e.target.value)}
+              placeholder="Enter chat ID"
+              className="w-full md:w-48"
+              style={{ fontSize: 14 }}
+            />
+          </span>
+          <span className="flex flex-col">
+            <label
+              htmlFor="
+            "
+              className="text-xs font-medium mb-1 text-gray-600"
+            >
+              &nbsp;
+            </label>
+            <Button
+              label="Test Telegram"
+              icon="pi pi-send"
+              className="btn-base"
+              severity="info"
+              type="button"
+              outlined={true}
+              onClick={handleTestTelegram}
+            />
+          </span>
+        </div>
+        <span className="flex flex-col">
+          <label className="text-xs font-medium mb-1 text-gray-600 invisible">
+            &nbsp;
+          </label>
           <Button
             label="Connect Kite"
             icon="pi pi-link"
-            className="btn-base kite-login-btn"
-            // onClick={handleKiteLogin}
-            outlined={isConnected}
-            severity={isConnected ? "success" : "secondary"}
+            className="btn-base"
+            onClick={handleKiteLogin}
+            outlined
+            severity="secondary"
+            // Remove disabled and isConnected logic
           />
-        </div>
+        </span>
+      </div>
 
+      {/* Summary Cards */}
+      <div className="flex flex-col space-y-4">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Portfolio Overview
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {summaryData.map((card, index) => (
             <SummaryCard key={index} {...card} />

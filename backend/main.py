@@ -8,16 +8,14 @@ import requests
 import json
 import dotenv
 dotenv.load_dotenv()
-dotenv.load_dotenv()
-from kiteconnect import KiteConnect
 
-dotenv.load_dotenv()
 app = Flask(__name__)
 
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 KITE_API_KEY = os.getenv("KITE_API_KEY")
 KITE_API_SECRET = os.getenv("KITE_API_SECRET")
+KITE_REDIRECT_URL = os.getenv("KITE_REDIRECT_URL")  # Add this to your .env
 
 @app.route("/login")
 def kite_login():
@@ -44,6 +42,10 @@ def kite_callback():
         with open("kite_token.json", "w") as f:
             json.dump({"access_token": access_token, "generated_at": datetime.now().isoformat()}, f)
         kite.set_access_token(access_token)
+        # Always redirect to the URL from .env if set
+        if KITE_REDIRECT_URL:
+            from flask import redirect
+            return redirect(KITE_REDIRECT_URL)
         return "Access token received and saved. You can close this tab.", 200
     except Exception as e:
         return f"Token exchange failed: {e}", 500
@@ -56,11 +58,89 @@ def add_cors(resp):
     resp.headers["Cache-Control"] = "no-cache"
     return resp
 
+@app.get("/expiry_list")
+def expiry_list():
+    try:
+        expiries = helper.get_expiry_list()
+        return jsonify({"expiries": expiries})
+    except Exception as e:
+        return jsonify({"error": f"Failed to fetch expiry list: {e}", "expiries": []}), 500
+
 @app.get("/positions")
 def positions():
-    # Use your mock for now (or swap to helper.get_positions())
-    return jsonify({ "positions": mock.mock_positions })
-    # return jsonify({"positions": helper.get_positions()})
+    try:
+        print("calling")
+        positions = helper.get_positions()
+        return jsonify({"positions": positions})
+    except Exception as e:
+        return jsonify({"error": f"Failed to fetch positions: {e}", "positions": []}), 500
+
+@app.post("/send_telegram")
+def send_telegram():
+    body = request.get_json(silent=True) or {}
+    telegram_bot_token = body.get("telegram_bot_token")
+    telegram_chat_id = body.get("telegram_chat_id")
+    message = body.get("message", "✅ Test message from Zerodha Automated Trading!")
+
+    if not telegram_bot_token or not telegram_chat_id:
+        return jsonify({"error": "telegram_bot_token and telegram_chat_id required"}), 400
+
+    try:
+        notify(message, telegram_bot_token, telegram_chat_id)
+        return jsonify({"result": "Message sent"})
+    except Exception as e:
+        return jsonify({"error": f"Failed to send telegram message: {e}"}), 500
+
+@app.post("/check_net_delta")
+def check_net_delta():
+    body = request.get_json(silent=True) or {}
+    selected_symbols = body.get("selected_symbols", [])  # List of trading symbols
+    target_delta = body.get("target_delta")
+    condition_type = body.get("condition_type")  # "above" | "below"
+    telegram_bot_token = body.get("telegram_bot_token")
+    telegram_chat_id = body.get("telegram_chat_id")
+
+    if not selected_symbols or not target_delta or condition_type not in ("above", "below"):
+        return jsonify({"error": "selected_symbols, target_delta, and condition_type required"}), 400
+
+    try:
+        # Get live delta for each selected position
+        net_delta = 0.0
+        position_deltas = []
+        
+        for symbol in selected_symbols:
+            try:
+                delta = float(helper.get_delta_for_tradingsymbol(symbol))
+                net_delta += delta
+                position_deltas.append({"symbol": symbol, "delta": delta})
+            except Exception as e:
+                print(f"Failed to get delta for {symbol}: {e}")
+                # Continue with other symbols
+                
+        target = float(target_delta)
+        triggered = (net_delta > target) if condition_type == "above" else (net_delta < target)
+
+        if triggered:
+            msg = f"🚨 Net Delta Alert!\n\n"
+            msg += f"Net delta has gone {condition_type} your target of {target:.3f}\n"
+            msg += f"Current net delta: {net_delta:.3f}\n\n"
+            msg += "Selected positions:\n"
+            for pos in position_deltas:
+                msg += f"• {pos['symbol']}: Δ={pos['delta']:.3f}\n"
+                
+            notify(msg, telegram_bot_token, telegram_chat_id)
+
+        return jsonify({
+            "net_delta": net_delta,
+            "target_delta": target,
+            "condition_type": condition_type,
+            "triggered": triggered,
+            "position_deltas": position_deltas,
+            "checked_at": datetime.now(timezone.utc).isoformat(),
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Failed to check net delta: {e}"}), 500
 
 @app.post("/check_delta")
 def check_delta():
@@ -68,6 +148,9 @@ def check_delta():
     ts = body.get("tradingsymbol")
     ctype = body.get("conditionType")  # "above" | "below"
     cval = body.get("conditionValue")  # float
+
+    telegram_bot_token = body.get("telegram_bot_token")
+    telegram_chat_id = body.get("telegram_chat_id")
 
     if not ts or ctype not in ("above", "below") or cval is None:
         return jsonify({"error": "tradingsymbol, conditionType, conditionValue required"}), 400
@@ -87,7 +170,7 @@ def check_delta():
     )
 
     if triggered:
-        notify(msg)
+        notify(msg, telegram_bot_token, telegram_chat_id)
 
     return jsonify({
         "tradingsymbol": ts,
@@ -98,18 +181,24 @@ def check_delta():
         "checked_at": datetime.now(timezone.utc).isoformat(),
     })
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+def notify(text: str, bot_token=None, chat_id=None):
+    # Use provided token/chat_id, else fallback to env
+    bot_token = bot_token or os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = chat_id or os.getenv("TELEGRAM_CHAT_ID")
+    if not bot_token or not chat_id:
+        print("Telegram bot token or chat id not provided")
+        return
 
-def notify(text: str):
+    api_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload = {
-        "chat_id": CHAT_ID,
+        "chat_id": chat_id,
         "text": text,
-        "parse_mode": "HTML" 
+        "parse_mode": "HTML"
     }
-
-    resp = requests.post(API_URL, json=payload)
+    try:
+        resp = requests.post(api_url, json=payload)
+    except Exception as e:
+        print(f"Failed to send Telegram message: {e}")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=2000)

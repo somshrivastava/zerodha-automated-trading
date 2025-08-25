@@ -425,10 +425,6 @@ footer {
   outline: none !important;
 }
 
-.threshold-input input:hover {
-  border-color: #9ca3af !important;
-}
-
 /* Compact delta reading */
 .delta-reading-compact {
   text-align: center;
@@ -436,27 +432,114 @@ footer {
   font-size: 10px;
 }
 
-/* Compact delta reading */
-.delta-reading-compact {
-  text-align: center;
-  min-width: 55px;
-  font-size: 10px;
+/* Strategy page specific styles */
+.strategy-config-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: #fafafa;
+  margin-bottom: 1.5rem;
 }
 
-.threshold-input input:hover {
-  border-color: #9ca3af !important;
+.strategy-config-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Compact delta reading */
-.delta-reading-compact {
-  text-align: center;
-  min-width: 55px;
-  font-size: 10px;
+/* Enhanced table row highlighting for selected positions */
+.p-datatable .p-datatable-tbody > tr.bg-blue-50 {
+  background: #eff6ff !important;
+  border-left: 3px solid #3b82f6;
 }
 
-/* Compact delta reading */
-.delta-reading-compact {
-  text-align: center;
-  min-width: 55px;
+.p-datatable .p-datatable-tbody > tr.bg-blue-50:hover {
+  background: #dbeafe !important;
+}
+
+/* Monitoring status indicator */
+.monitoring-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.monitoring-status .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Delta value color coding */
+.delta-positive {
+  color: #059669;
+  font-weight: 600;
+}
+
+.delta-negative {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.delta-neutral {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Enhanced section headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  letter-spacing: -0.025em;
+}
+
+.section-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 0.25rem;
+  font-weight: 400;
+}
+
+/* Position contributing indicator */
+.contributing-indicator {
   font-size: 10px;
+  font-weight: 600;
+  color: #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Select all/clear buttons */
+.selection-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.selection-controls .p-button {
+  font-size: 12px;
+  padding: 6px 12px;
+  font-weight: 500;
 }
