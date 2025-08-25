@@ -52,7 +52,19 @@ def kite_callback():
 
 @app.after_request
 def add_cors(resp):
-    resp.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+    origin = resp.headers.get("Origin")
+    allowed_origins = ["http://localhost:3000", "https://zerodha-automated-trading.vercel.app"]
+    # If the request's Origin header matches an allowed origin, set it; else default to localhost
+    req_origin = None
+    try:
+        from flask import request as flask_request
+        req_origin = flask_request.headers.get("Origin")
+    except Exception:
+        pass
+    if req_origin in allowed_origins:
+        resp.headers["Access-Control-Allow-Origin"] = req_origin
+    else:
+        resp.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
     resp.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     resp.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     resp.headers["Cache-Control"] = "no-cache"
