@@ -301,7 +301,7 @@ export default function StrategyPage() {
           </label>
           <InputText
             id="target-delta"
-            value={targetDelta === null ? "" : targetDelta}
+            value={targetDelta === null ? "" : String(targetDelta)}
             onChange={(e) => {
               const val = e.target.value;
               setTargetDelta(val === "" ? null : Number(val));
@@ -369,13 +369,13 @@ export default function StrategyPage() {
           <DataTable
             value={positions}
             className="w-full"
+            selectionMode={"multiple"}
             paginator={positions.length > 10}
             rows={10}
             emptyMessage="No positions found. Connect your trading account to view positions."
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             rowsPerPageOptions={[10, 25, 50]}
             scrollable={false}
-            responsiveLayout="scroll"
             selection={selectedPositions}
             onSelectionChange={(e) => setSelectedPositions(e.value)}
             dataKey="tradingsymbol"
