@@ -372,7 +372,7 @@ export default function StrategyPage() {
             selectionMode={"multiple"}
             paginator={positions.length > 10}
             rows={10}
-            emptyMessage="No positions found. Connect your trading account to view positions."
+            emptyMessage="No positions found. Connect your trading account to view positions"
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
             rowsPerPageOptions={[10, 25, 50]}
             scrollable={false}
