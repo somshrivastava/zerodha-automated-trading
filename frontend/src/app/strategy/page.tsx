@@ -24,7 +24,7 @@ type Position = {
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ??
-  "https://zerodha-automated-trading.vercel.app/";
+  "https://zerodha-automated-trading.onrender.com";
 
 export default function StrategyPage() {
   const [positions, setPositions] = useState<Position[]>([]);
